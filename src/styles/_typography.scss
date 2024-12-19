@@ -1,0 +1,22 @@
+:root {
+  --font-family-primary: -apple-system, blinkmacsystemfont, 'Poppins', 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+
+  // line heights
+  --line-height-s: 16px;
+  --line-height-m: 24px;
+  --line-height-l: 36px;
+
+  // font sizes
+  --font-size-xs: 0.75rem; // 12px
+  --font-size-s: 0.875rem; // 14px
+  --font-size-m: 1rem; // 16px
+  --font-size-l: 1.125rem; // 18 px
+  --font-size-xl: 1.25rem; // 20 px
+  --font-size-xxl: 1.625rem; // 26px
+  --font-size-xxxl: 2rem; // 32px
+
+  // font weights
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+}
