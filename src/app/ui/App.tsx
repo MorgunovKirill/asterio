@@ -2,6 +2,10 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { imageOriginPath } from '@/utils/consts'
 import { SlideType } from '@/utils/types'
+import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled'
+import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled'
+import VolumeOffIcon from '@mui/icons-material/VolumeOff'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
 import s from './App.module.scss'
 
@@ -12,6 +16,7 @@ export const App = () => {
   const [slides, setSlides] = useState<Array<SlideType>>([])
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isVolumeOn, setIsVolumeOn] = useState(true)
   const slideInterval = 3000
 
   // CORS ошибка , поэтому использвую данные из файла
@@ -28,6 +33,10 @@ export const App = () => {
 
   const togglePlay = () => {
     setIsPlaying(prev => !prev)
+  }
+
+  const toggleVolume = () => {
+    setIsVolumeOn(prev => !prev)
   }
 
   // const playAudio = (text: string) => {
@@ -58,7 +67,7 @@ export const App = () => {
   return (
     <div className={s.container}>
       {slides.length > 0 ? (
-        <>
+        <div className={s.player}>
           <div className={s.imageContainer}>
             <img
               alt={'slide image'}
@@ -67,12 +76,21 @@ export const App = () => {
             />
           </div>
           <p className={s.subTitle}>{slides[currentSlide]?.text}</p>
-          <button className={s.playBtn} onClick={togglePlay}>
-            {isPlaying ? 'Pause' : 'Play'}
-          </button>
-        </>
+          <div className={s.controls}>
+            <div className={s.playBlock}>
+              <button className={s.playBtn} onClick={togglePlay} type={'button'}>
+                {isPlaying ? <PauseCircleFilledIcon /> : <PlayCircleFilledIcon />}
+              </button>
+            </div>
+            <div className={s.optionsBlock}>
+              <button className={s.volumeBtn} onClick={toggleVolume} type={'button'}>
+                {isVolumeOn ? <VolumeOffIcon /> : <VolumeUpIcon />}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
-        <p>Loading slides...</p>
+        <p>Loading video...</p>
       )}
     </div>
   )

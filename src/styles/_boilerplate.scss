@@ -35,7 +35,7 @@ option {
 
 a:visited {
   color: inherit;
-} // ?
+}
 
 body {
   height: 100%;
@@ -52,12 +52,6 @@ body {
 #root {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   min-height: 100%;
-}
-
-.container {
-  max-width: 1086px;
-  margin: 0 auto;
-  padding: 33px 40px 36px;
-  color: var(--color-dark-900);
 }
