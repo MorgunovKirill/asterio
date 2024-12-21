@@ -48,7 +48,6 @@ export const App = () => {
 
   const togglePlay = () => {
     dispatch({ type: 'TOGGLE_IS_PLAYING' })
-
     if (state.isPlaying && videoPlayIntervalRef.current) {
       clearInterval(videoPlayIntervalRef.current)
       videoPlayIntervalRef.current = null
@@ -89,8 +88,27 @@ export const App = () => {
 
   useEffect(() => {
     if (state.isPlaying) {
+      const passedSlidesTimeAmount = [...state.slides]
+        .slice(0, state.currentSlide)
+        .reduce((acc, cur) => {
+          return acc + cur.duration
+        }, 0)
+
       videoPlayIntervalRef.current = window.setInterval(() => {
         dispatch({ payload: state.currentTime + 1000, type: 'SET_CURRENT_TIME' })
+        const slidePortions = state.slidesWithPortions[state.currentSlide]?.textPortions.length
+
+        if (slidePortions) {
+          const slidePortionSize = state.slides[state.currentSlide].duration / slidePortions
+          const currentPortion = Math.floor(
+            (state.currentTime - passedSlidesTimeAmount) / slidePortionSize
+          )
+
+          dispatch({
+            payload: currentPortion,
+            type: 'SET_CURRENT_SLIDE_PART',
+          })
+        }
       }, 1000)
     } else if (videoPlayIntervalRef.current) {
       clearInterval(videoPlayIntervalRef.current)
@@ -119,7 +137,9 @@ export const App = () => {
               style={{ height: 'auto', maxWidth: '100%' }}
             />
           </div>
-          <p className={s.subTitle}>{state.slides[state.currentSlide]?.text}</p>
+          <p className={s.subTitle}>
+            {state.slidesWithPortions[state.currentSlide]?.textPortions[state.currentSlidePart]}
+          </p>
           <div className={clsx(s.controls, 'controls')}>
             <div className={s.playBlock}>
               <button className={s.playBtn} onClick={togglePlay} type={'button'}>

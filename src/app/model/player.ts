@@ -4,25 +4,21 @@ import { imageOriginPath } from '@/utils/consts'
 import { SlideType } from '@/utils/types'
 import { Nullable } from '@/utils/utils'
 
-const initialState = {
-  audio: null,
-  audioIsPlaying: false,
-  currentSlide: 0,
-  currentTime: 0,
-  isPlaying: false,
-  isVolumeOn: true,
-  slides: [],
-  videoTimeLength: null,
+type SlideWithPortion = {
+  slideNumber: number
+  textPortions: string[]
 }
 
 type State = {
   audio: Nullable<HTMLAudioElement>
   audioIsPlaying: boolean
   currentSlide: number
+  currentSlidePart: number
   currentTime: number
   isPlaying: boolean
   isVolumeOn: boolean
   slides: SlideType[]
+  slidesWithPortions: SlideWithPortion[]
   videoTimeLength: Nullable<number>
 }
 
@@ -31,10 +27,24 @@ type Action =
   | { payload: SlideType[]; type: 'SET_SLIDES' }
   | { payload: boolean; type: 'SET_AUDIO_IS_PLAYING' }
   | { payload: number; type: 'SET_CURRENT_SLIDE' }
+  | { payload: number; type: 'SET_CURRENT_SLIDE_PART' }
   | { payload: number; type: 'SET_CURRENT_TIME' }
   | { type: 'SET_NEXT_SLIDE' }
   | { type: 'TOGGLE_IS_PLAYING' }
   | { type: 'TOGGLE_VOLUME' }
+
+const initialState = {
+  audio: null,
+  audioIsPlaying: false,
+  currentSlide: 0,
+  currentSlidePart: 0,
+  currentTime: 0,
+  isPlaying: false,
+  isVolumeOn: true,
+  slides: [],
+  slidesWithPortions: [],
+  videoTimeLength: null,
+}
 
 const reducer = (state: State = initialState, action: Action): State => {
   switch (action.type) {
@@ -42,6 +52,12 @@ const reducer = (state: State = initialState, action: Action): State => {
       return {
         ...state,
         slides: action.payload,
+        slidesWithPortions: action.payload.map((item, idx) => {
+          return {
+            slideNumber: idx,
+            textPortions: item.text.split('\n'),
+          }
+        }, []),
         videoTimeLength: action.payload.reduce((acc, cur) => {
           return acc + cur.duration
         }, 0),
@@ -63,7 +79,9 @@ const reducer = (state: State = initialState, action: Action): State => {
 
       return { ...state, isVolumeOn: !state.isVolumeOn }
     case 'SET_CURRENT_SLIDE':
-      return { ...state, currentSlide: action.payload }
+      return { ...state, currentSlide: action.payload, currentSlidePart: 0 }
+    case 'SET_CURRENT_SLIDE_PART':
+      return { ...state, currentSlidePart: action.payload }
     case 'SET_NEXT_SLIDE':
       if (state.audio) {
         state.audio.setAttribute(
