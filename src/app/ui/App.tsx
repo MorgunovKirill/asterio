@@ -33,7 +33,7 @@ export const App = () => {
   }, [dispatch])
 
   const playerClickHandler = (evt: any) => {
-    if (!evt.target.closest('.controls')) {
+    if (!evt.target.closest('.controls') && !evt.target.closest('.timeBar')) {
       togglePlay()
     }
   }
@@ -143,7 +143,7 @@ export const App = () => {
             </div>
           </div>
           {state.videoTimeLength && (
-            <div className={s.timeBar}>
+            <div className={clsx(s.timeBar, 'timeBar')}>
               <div
                 className={s.timeThumb}
                 style={{ width: `${(state.currentTime * 100) / state.videoTimeLength}%` }}

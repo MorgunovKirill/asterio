@@ -131,11 +131,24 @@
 .timeBar {
   cursor: pointer;
 
+  position: relative;
+
   width: 100%;
   height: 5px;
 
   background-color: var(--color-light-900);
   border-radius: 5px;
+
+  &::before {
+    content: '';
+
+    position: absolute;
+    top: -5px;
+    left: 0;
+
+    width: 100%;
+    height: 15px;
+  }
 
   &:hover {
     .timeThumbHandle {
