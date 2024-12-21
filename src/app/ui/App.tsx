@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { usePlayer } from '@/app/model/player'
 import { imageOriginPath } from '@/utils/consts'
-import { convertTime } from '@/utils/utils'
+import { Nullable, convertTime } from '@/utils/utils'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled'
@@ -24,7 +24,7 @@ export const App = () => {
   //     .then(data => setSlides(data.sentences))
   // }, [])
   const [isFullWindowModeActive, setIsFullWindowModeActive] = useState(false)
-  const videoPlayIntervalRef = useRef<null | number>(null)
+  const videoPlayIntervalRef = useRef<Nullable<number>>(null)
 
   const { dispatch, state } = usePlayer()
 
@@ -72,13 +72,20 @@ export const App = () => {
     let interval: ReturnType<typeof setTimeout>
 
     if (state.isPlaying) {
-      const duration = state.slides[state.currentSlide]?.duration || 3000
+      const passedSlidesTimeAmount = state.slides
+        .slice(0, state.currentSlide)
+        .reduce((acc, cur) => {
+          return acc + cur.duration
+        }, 0)
+
+      const duration =
+        state.slides[state.currentSlide]?.duration - state.currentTime + passedSlidesTimeAmount
 
       interval = setTimeout(nextSlide, duration)
     }
 
     return () => clearTimeout(interval)
-  }, [nextSlide, state.isPlaying, state.currentSlide, state.slides])
+  }, [nextSlide, state.currentTime, state.isPlaying, state.currentSlide, state.slides])
 
   useEffect(() => {
     if (state.isPlaying) {
