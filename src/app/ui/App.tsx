@@ -142,6 +142,16 @@ export const App = () => {
               </button>
             </div>
           </div>
+          {state.videoTimeLength && (
+            <div className={s.timeBar}>
+              <div
+                className={s.timeThumb}
+                style={{ width: `${(state.currentTime * 100) / state.videoTimeLength}%` }}
+              >
+                <div className={s.timeThumbHandle}></div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <p>Loading video...</p>
