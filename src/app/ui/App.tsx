@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { usePlayer } from '@/app/model/player'
 import { imageOriginPath } from '@/utils/consts'
@@ -24,6 +24,7 @@ export const App = () => {
   //     .then(data => setSlides(data.sentences))
   // }, [])
   const [isFullWindowModeActive, setIsFullWindowModeActive] = useState(false)
+  const videoPlayIntervalRef = useRef<null | number>(null)
 
   const { dispatch, state } = usePlayer()
 
@@ -47,6 +48,11 @@ export const App = () => {
 
   const togglePlay = () => {
     dispatch({ type: 'TOGGLE_IS_PLAYING' })
+
+    if (state.isPlaying && videoPlayIntervalRef.current) {
+      clearInterval(videoPlayIntervalRef.current)
+      videoPlayIntervalRef.current = null
+    }
   }
 
   useEffect(() => {
@@ -63,7 +69,7 @@ export const App = () => {
   }, [dispatch, state.slides])
 
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>
+    let interval: ReturnType<typeof setTimeout>
 
     if (state.isPlaying) {
       const duration = state.slides[state.currentSlide]?.duration || 3000
@@ -73,6 +79,24 @@ export const App = () => {
 
     return () => clearTimeout(interval)
   }, [nextSlide, state.isPlaying, state.currentSlide, state.slides])
+
+  useEffect(() => {
+    if (state.isPlaying) {
+      videoPlayIntervalRef.current = window.setInterval(() => {
+        dispatch({ payload: state.currentTime + 1000, type: 'SET_CURRENT_TIME' })
+      }, 1000)
+    } else if (videoPlayIntervalRef.current) {
+      clearInterval(videoPlayIntervalRef.current)
+      videoPlayIntervalRef.current = null
+    }
+
+    return () => {
+      if (videoPlayIntervalRef.current) {
+        clearInterval(videoPlayIntervalRef.current)
+        videoPlayIntervalRef.current = null
+      }
+    }
+  }, [state.isPlaying, state.currentTime, dispatch])
 
   return (
     <div className={s.container}>
