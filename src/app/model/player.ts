@@ -1,5 +1,6 @@
 import { useReducer } from 'react'
 
+import { imageOriginPath } from '@/utils/consts'
 import { SlideType } from '@/utils/types'
 import { Nullable } from '@/utils/utils'
 
@@ -35,21 +36,44 @@ const reducer = (state: State = initialState, action: Action): State => {
     case 'SET_SLIDES':
       return { ...state, slides: action.payload }
     case 'TOGGLE_IS_PLAYING':
+      if (state.audio && state.isPlaying) {
+        state.audio.pause()
+      } else if (state.audio) {
+        state.audio.play()
+      }
+
       return { ...state, isPlaying: !state.isPlaying }
     case 'TOGGLE_VOLUME':
+      if (state.audio && state.isVolumeOn) {
+        state.audio.volume = 0
+      } else if (state.audio) {
+        state.audio.volume = 1
+      }
+
       return { ...state, isVolumeOn: !state.isVolumeOn }
     case 'SET_CURRENT_SLIDE':
       return { ...state, currentSlide: action.payload }
     case 'SET_NEXT_SLIDE':
       if (state.audio) {
-        state.audio.pause()
-        state.audio.currentTime = 0
+        state.audio.setAttribute(
+          'src',
+          `${imageOriginPath}${state.slides[state.currentSlide + 1]?.voiceOver}`
+        )
+        state.audio.load()
+        state.audio.play()
       }
 
-      return { ...state, currentSlide: state.currentSlide + 1 }
+      return {
+        ...state,
+        currentSlide: state.currentSlide + 1,
+      }
     case 'SET_AUDIO':
       return { ...state, audio: action.payload }
     case 'SET_AUDIO_IS_PLAYING':
+      if (state.audio) {
+        state.audio.play()
+      }
+
       return { ...state, audioIsPlaying: action.payload }
   }
 }
