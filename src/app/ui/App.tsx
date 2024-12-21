@@ -1,11 +1,14 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { usePlayer } from '@/app/model/player'
 import { imageOriginPath } from '@/utils/consts'
+import FullscreenIcon from '@mui/icons-material/Fullscreen'
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled'
 import PlayCircleFilledIcon from '@mui/icons-material/PlayCircleFilled'
 import VolumeOffIcon from '@mui/icons-material/VolumeOff'
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
+import clsx from 'clsx'
 
 import s from './App.module.scss'
 
@@ -19,6 +22,7 @@ export const App = () => {
   //     .then(response => response.json())
   //     .then(data => setSlides(data.sentences))
   // }, [])
+  const [isFullWindowModeActive, setIsFullWindowModeActive] = useState(false)
 
   const { dispatch, state } = usePlayer()
 
@@ -28,6 +32,10 @@ export const App = () => {
 
   const toggleVolume = () => {
     dispatch({ type: 'TOGGLE_VOLUME' })
+  }
+
+  const toggleScreen = () => {
+    setIsFullWindowModeActive(prevState => !prevState)
   }
 
   const togglePlay = () => {
@@ -62,7 +70,7 @@ export const App = () => {
   return (
     <div className={s.container}>
       {state.slides.length > 0 ? (
-        <div className={s.player}>
+        <div className={clsx(s.player, isFullWindowModeActive ? s.fullMode : '')}>
           <div className={s.imageContainer}>
             <img
               alt={'slide image'}
@@ -76,10 +84,18 @@ export const App = () => {
               <button className={s.playBtn} onClick={togglePlay} type={'button'}>
                 {state.isPlaying ? <PauseCircleFilledIcon /> : <PlayCircleFilledIcon />}
               </button>
+              <div className={s.timeBlock}>
+                <span className={s.currentTime}>0:00</span>
+                <span>/</span>
+                <span className={s.timeAmount}>2:00</span>
+              </div>
             </div>
             <div className={s.optionsBlock}>
               <button className={s.volumeBtn} onClick={toggleVolume} type={'button'}>
                 {state.isVolumeOn ? <VolumeUpIcon /> : <VolumeOffIcon />}
+              </button>
+              <button className={s.screenBtn} onClick={toggleScreen} type={'button'}>
+                {isFullWindowModeActive ? <FullscreenExitIcon /> : <FullscreenIcon />}
               </button>
             </div>
           </div>
