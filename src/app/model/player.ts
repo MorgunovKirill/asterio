@@ -8,18 +8,22 @@ const initialState = {
   audio: null,
   audioIsPlaying: false,
   currentSlide: 0,
+  currentTime: 0,
   isPlaying: false,
   isVolumeOn: true,
   slides: [],
+  videoTimeLength: null,
 }
 
 type State = {
   audio: Nullable<HTMLAudioElement>
   audioIsPlaying: boolean
   currentSlide: number
+  currentTime: number
   isPlaying: boolean
   isVolumeOn: boolean
   slides: SlideType[]
+  videoTimeLength: Nullable<number>
 }
 
 type Action =
@@ -27,6 +31,7 @@ type Action =
   | { payload: SlideType[]; type: 'SET_SLIDES' }
   | { payload: boolean; type: 'SET_AUDIO_IS_PLAYING' }
   | { payload: number; type: 'SET_CURRENT_SLIDE' }
+  | { payload: number; type: 'SET_CURRENT_TIME' }
   | { type: 'SET_NEXT_SLIDE' }
   | { type: 'TOGGLE_IS_PLAYING' }
   | { type: 'TOGGLE_VOLUME' }
@@ -34,7 +39,13 @@ type Action =
 const reducer = (state: State = initialState, action: Action): State => {
   switch (action.type) {
     case 'SET_SLIDES':
-      return { ...state, slides: action.payload }
+      return {
+        ...state,
+        slides: action.payload,
+        videoTimeLength: action.payload.reduce((acc, cur) => {
+          return acc + cur.duration
+        }, 0),
+      }
     case 'TOGGLE_IS_PLAYING':
       if (state.audio && state.isPlaying) {
         state.audio.pause()
@@ -67,6 +78,8 @@ const reducer = (state: State = initialState, action: Action): State => {
         ...state,
         currentSlide: state.currentSlide + 1,
       }
+    case 'SET_CURRENT_TIME':
+      return { ...state, currentTime: action.payload }
     case 'SET_AUDIO':
       return { ...state, audio: action.payload }
     case 'SET_AUDIO_IS_PLAYING':

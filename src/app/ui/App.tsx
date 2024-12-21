@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { usePlayer } from '@/app/model/player'
 import { imageOriginPath } from '@/utils/consts'
+import { convertTime } from '@/utils/utils'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled'
@@ -29,6 +30,12 @@ export const App = () => {
   const nextSlide = useCallback(() => {
     dispatch({ type: 'SET_NEXT_SLIDE' })
   }, [dispatch])
+
+  const playerClickHandler = (evt: any) => {
+    if (!evt.target.closest('.controls')) {
+      togglePlay()
+    }
+  }
 
   const toggleVolume = () => {
     dispatch({ type: 'TOGGLE_VOLUME' })
@@ -70,7 +77,10 @@ export const App = () => {
   return (
     <div className={s.container}>
       {state.slides.length > 0 ? (
-        <div className={clsx(s.player, isFullWindowModeActive ? s.fullMode : '')}>
+        <div
+          className={clsx(s.player, isFullWindowModeActive ? s.fullMode : '')}
+          onClick={playerClickHandler}
+        >
           <div className={s.imageContainer}>
             <img
               alt={'slide image'}
@@ -79,16 +89,18 @@ export const App = () => {
             />
           </div>
           <p className={s.subTitle}>{state.slides[state.currentSlide]?.text}</p>
-          <div className={s.controls}>
+          <div className={clsx(s.controls, 'controls')}>
             <div className={s.playBlock}>
               <button className={s.playBtn} onClick={togglePlay} type={'button'}>
                 {state.isPlaying ? <PauseCircleFilledIcon /> : <PlayCircleFilledIcon />}
               </button>
-              <div className={s.timeBlock}>
-                <span className={s.currentTime}>0:00</span>
-                <span>/</span>
-                <span className={s.timeAmount}>2:00</span>
-              </div>
+              {state.videoTimeLength && (
+                <div className={s.timeBlock}>
+                  <span className={s.currentTime}>{convertTime(state.currentTime)}</span>
+                  <span>/</span>
+                  <span className={s.timeAmount}>{convertTime(state.videoTimeLength)}</span>
+                </div>
+              )}
             </div>
             <div className={s.optionsBlock}>
               <button className={s.volumeBtn} onClick={toggleVolume} type={'button'}>
