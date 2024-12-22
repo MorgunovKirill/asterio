@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 
 import { usePlayer } from '@/app/model/player'
 import { imageOriginPath } from '@/utils/consts'
@@ -54,6 +54,10 @@ export const App = () => {
     }
   }
 
+  const handleSeek = (evt: ChangeEvent<HTMLInputElement>) => {
+    dispatch({ payload: +evt.target.value, type: 'SET_CURRENT_TIME' })
+  }
+
   useEffect(() => {
     dispatch({ payload: [...slidesData.sentences], type: 'SET_SLIDES' })
   }, [dispatch])
@@ -96,7 +100,7 @@ export const App = () => {
 
       videoPlayIntervalRef.current = window.setInterval(() => {
         dispatch({ payload: state.currentTime + 1000, type: 'SET_CURRENT_TIME' })
-        const slidePortions = state.slidesWithPortions[state.currentSlide]?.textPortions.length
+        const slidePortions = state.slides[state.currentSlide]?.textPortions.length
 
         if (slidePortions) {
           const slidePortionSize = state.slides[state.currentSlide].duration / slidePortions
@@ -121,7 +125,7 @@ export const App = () => {
         videoPlayIntervalRef.current = null
       }
     }
-  }, [state.isPlaying, state.currentTime, dispatch])
+  }, [state.isPlaying, state.currentSlide, state.slides, state.currentTime, dispatch])
 
   return (
     <div className={s.container}>
@@ -138,7 +142,7 @@ export const App = () => {
             />
           </div>
           <p className={s.subTitle}>
-            {state.slidesWithPortions[state.currentSlide]?.textPortions[state.currentSlidePart]}
+            {state.slides[state.currentSlide]?.textPortions[state.currentSlidePart]}
           </p>
           <div className={clsx(s.controls, 'controls')}>
             <div className={s.playBlock}>
@@ -163,14 +167,15 @@ export const App = () => {
             </div>
           </div>
           {state.videoTimeLength && (
-            <div className={clsx(s.timeBar, 'timeBar')}>
-              <div
-                className={s.timeThumb}
-                style={{ width: `${(state.currentTime * 100) / state.videoTimeLength}%` }}
-              >
-                <div className={s.timeThumbHandle}></div>
-              </div>
-            </div>
+            <input
+              className={clsx(s.timeBar, 'timeBar')}
+              max={state.videoTimeLength}
+              min={'0'}
+              onChange={handleSeek}
+              step={'0.1'}
+              type={'range'}
+              value={state.currentTime}
+            />
           )}
         </div>
       ) : (

@@ -4,7 +4,7 @@ import { imageOriginPath } from '@/utils/consts'
 import { SlideType } from '@/utils/types'
 import { Nullable } from '@/utils/utils'
 
-type SlideWithPortion = {
+type Portions = {
   slideNumber: number
   textPortions: string[]
 }
@@ -17,8 +17,7 @@ type State = {
   currentTime: number
   isPlaying: boolean
   isVolumeOn: boolean
-  slides: SlideType[]
-  slidesWithPortions: SlideWithPortion[]
+  slides: Array<Portions & SlideType>
   videoTimeLength: Nullable<number>
 }
 
@@ -42,7 +41,6 @@ const initialState = {
   isPlaying: false,
   isVolumeOn: true,
   slides: [],
-  slidesWithPortions: [],
   videoTimeLength: null,
 }
 
@@ -51,9 +49,9 @@ const reducer = (state: State = initialState, action: Action): State => {
     case 'SET_SLIDES':
       return {
         ...state,
-        slides: action.payload,
-        slidesWithPortions: action.payload.map((item, idx) => {
+        slides: action.payload.map((item, idx) => {
           return {
+            ...item,
             slideNumber: idx,
             textPortions: item.text.split('\n'),
           }
