@@ -124,11 +124,16 @@ export const App = () => {
         if (slidePortions) {
           const slidePortionSize = state.slides[state.currentSlide].duration / slidePortions
           const currentPortion = Math.floor(
-            (state.currentTime - passedSlidesTimeAmount) / slidePortionSize
+            (state.currentTime + 1000 - passedSlidesTimeAmount) / slidePortionSize
           )
 
           dispatch({
             payload: currentPortion,
+            type: 'SET_CURRENT_SLIDE_PART',
+          })
+        } else {
+          dispatch({
+            payload: 0,
             type: 'SET_CURRENT_SLIDE_PART',
           })
         }

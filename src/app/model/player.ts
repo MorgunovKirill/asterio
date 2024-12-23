@@ -120,6 +120,7 @@ const reducer = (state: State = initialState, action: Action): State => {
       return {
         ...state,
         currentSlide: state.currentSlide + 1,
+        currentSlidePart: 0,
       }
     case 'SET_CURRENT_TIME':
       return { ...state, currentTime: action.payload }
