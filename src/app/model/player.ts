@@ -6,6 +6,7 @@ import { Nullable } from '@/utils/utils'
 
 type Portions = {
   slideNumber: number
+  slideTimePeriod: number
   textPortions: string[]
 }
 
@@ -22,10 +23,10 @@ type State = {
 }
 
 type Action =
+  | { payload: { slide: number; time: number }; type: 'SET_CURRENT_SLIDE' }
   | { payload: Nullable<HTMLAudioElement>; type: 'SET_AUDIO' }
   | { payload: SlideType[]; type: 'SET_SLIDES' }
   | { payload: boolean; type: 'SET_AUDIO_IS_PLAYING' }
-  | { payload: number; type: 'SET_CURRENT_SLIDE' }
   | { payload: number; type: 'SET_CURRENT_SLIDE_PART' }
   | { payload: number; type: 'SET_CURRENT_TIME' }
   | { type: 'SET_NEXT_SLIDE' }
@@ -49,13 +50,27 @@ const reducer = (state: State = initialState, action: Action): State => {
     case 'SET_SLIDES':
       return {
         ...state,
-        slides: action.payload.map((item, idx) => {
+        slides: action.payload.map((item, idx, array) => {
           return {
             ...item,
             slideNumber: idx,
+            slideTimePeriod: [...array].reduce((acc, cur, currentIndex, array) => {
+              if (idx === 0) {
+                array.splice(1)
+
+                return cur.duration
+              }
+              if (currentIndex === idx) {
+                array.splice(1)
+
+                return acc + cur.duration
+              }
+
+              return acc + cur.duration
+            }, 0),
             textPortions: item.text.split('\n'),
           }
-        }, []),
+        }),
         videoTimeLength: action.payload.reduce((acc, cur) => {
           return acc + cur.duration
         }, 0),
@@ -77,7 +92,19 @@ const reducer = (state: State = initialState, action: Action): State => {
 
       return { ...state, isVolumeOn: !state.isVolumeOn }
     case 'SET_CURRENT_SLIDE':
-      return { ...state, currentSlide: action.payload, currentSlidePart: 0 }
+      if (state.audio) {
+        state.audio.setAttribute(
+          'src',
+          `${imageOriginPath}${state.slides[action.payload.slide]?.voiceOver}`
+        )
+        state.audio.load()
+        state.audio.currentTime = Math.floor(action.payload.time / 1000)
+        if (state.isPlaying) {
+          state.audio.play()
+        }
+      }
+
+      return { ...state, currentSlide: action.payload.slide, currentSlidePart: 0 }
     case 'SET_CURRENT_SLIDE_PART':
       return { ...state, currentSlidePart: action.payload }
     case 'SET_NEXT_SLIDE':

@@ -55,7 +55,26 @@ export const App = () => {
   }
 
   const handleSeek = (evt: ChangeEvent<HTMLInputElement>) => {
-    dispatch({ payload: +evt.target.value, type: 'SET_CURRENT_TIME' })
+    const targetValue = +evt.target.value
+    let newSlide = 0
+    let slideTimeSeekValue = 0
+
+    for (let i = 0; i < state.slides.length; i++) {
+      newSlide = state.slides[i].slideNumber
+
+      if (targetValue < state.slides[i].slideTimePeriod) {
+        const passedSlidesTimeAmount = state.slides.slice(0, newSlide).reduce((acc, cur) => {
+          return acc + cur.duration
+        }, 0)
+
+        slideTimeSeekValue = state.slides[newSlide]?.duration - targetValue + passedSlidesTimeAmount
+
+        break
+      }
+    }
+
+    dispatch({ payload: { slide: newSlide, time: slideTimeSeekValue }, type: 'SET_CURRENT_SLIDE' })
+    dispatch({ payload: targetValue, type: 'SET_CURRENT_TIME' })
   }
 
   useEffect(() => {
